@@ -1,9 +1,11 @@
 package com.example.managementproject.controller;
 
+import com.example.managementproject.dto.WhBanAnLenhQdToiPhamRequest;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhBanAnLenhQdToiPham;
 import com.example.managementproject.service.WhBanAnLenhQdToiPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,17 +15,18 @@ public class WhBanAnLenhQdToiPhamController {
     WhBanAnLenhQdToiPhamService whBanAnLenhQdToiPhamService;
 
     @PostMapping
-    public WhBanAnLenhQdToiPham create(@RequestBody WhBanAnLenhQdToiPham wd, @RequestParam Long banAnLenhQdId){
-        return whBanAnLenhQdToiPhamService.create(wd,banAnLenhQdId);
+    public ResponseEntity<WhBanAnLenhQdToiPham> create(@RequestBody WhBanAnLenhQdToiPhamRequest request){
+        return ResponseEntity.ok(whBanAnLenhQdToiPhamService.create(request));
     }
 
     @PutMapping("/{id}")
-    public WhBanAnLenhQdToiPham update(@PathVariable Long id, @RequestBody WhBanAnLenhQdToiPham wd,  @RequestParam Long banAnLenhQdId){
-        return whBanAnLenhQdToiPhamService.update(id,wd,banAnLenhQdId);
+    public ResponseEntity<WhBanAnLenhQdToiPham> update(@PathVariable Long id, @RequestBody WhBanAnLenhQdToiPhamRequest request){
+        return ResponseEntity.ok(whBanAnLenhQdToiPhamService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         whBanAnLenhQdToiPhamService.delete(id);
+        return ResponseEntity.ok().build();
     }
 }

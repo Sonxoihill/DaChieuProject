@@ -1,9 +1,11 @@
 package com.example.managementproject.service;
 
+import com.example.managementproject.dto.WhBanAnLenhQdToiPhamRequest;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhBanAnLenhQdToiPham;
 import com.example.managementproject.repository.WhBanAnLenhQdRepository;
 import com.example.managementproject.repository.WhBanAnLenhQdToiPhamRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,16 @@ public class WhBanAnLenhQdToiPhamService {
     @Autowired
     WhBanAnLenhQdRepository whBanAnLenhQdRepository;
 
-    public WhBanAnLenhQdToiPham create(WhBanAnLenhQdToiPham wd, Long banAnLenhQdId) {
-        WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(banAnLenhQdId)
+    @Transactional
+    public WhBanAnLenhQdToiPham create(WhBanAnLenhQdToiPhamRequest request) {
+        WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
 
+        WhBanAnLenhQdToiPham wd = new WhBanAnLenhQdToiPham();
         wd.setBanAnLenhQd(banAn);
+        wd.setToiPhamId(request.getToiPhamId());
+        wd.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
+
         wd.setThaoTacCuoi(1);
         wd.setSyncVnpt(0);
         wd.setTimeSyncVnpt(new Date());
@@ -29,15 +36,16 @@ public class WhBanAnLenhQdToiPhamService {
         return whBanAnLenhQdToiPhamRepository.save(wd);
     }
 
-    public WhBanAnLenhQdToiPham update(Long id, WhBanAnLenhQdToiPham wd, Long banAnLenhQdId) {
+    @Transactional
+    public WhBanAnLenhQdToiPham update(Long id, WhBanAnLenhQdToiPhamRequest request) {
         WhBanAnLenhQdToiPham tp = whBanAnLenhQdToiPhamRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
 
-        tp.setToiPhamId(wd.getToiPhamId());
-        tp.setDiaBanQuanLyCode(wd.getDiaBanQuanLyCode());
+        tp.setToiPhamId(request.getToiPhamId());
+        tp.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
 
-        if(banAnLenhQdId!=null){
-            WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(banAnLenhQdId)
+        if(request.getBanAnLenhQdId() != null){
+            WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
                     .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
             tp.setBanAnLenhQd(banAn);
         }
@@ -50,8 +58,11 @@ public class WhBanAnLenhQdToiPhamService {
         return whBanAnLenhQdToiPhamRepository.save(tp);
     }
 
+    @Transactional
     public void delete(Long id) {
-        WhBanAnLenhQdToiPham toiPham = whBanAnLenhQdToiPhamRepository.getById(id);
-        whBanAnLenhQdToiPhamRepository.delete(toiPham);
+        if(!whBanAnLenhQdToiPhamRepository.existsById(id)){
+            throw new RuntimeException("Khong tim thay ban an toi pham");
+        }
+        whBanAnLenhQdToiPhamRepository.deleteById(id);
     }
 }

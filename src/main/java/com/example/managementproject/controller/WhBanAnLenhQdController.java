@@ -1,9 +1,11 @@
 package com.example.managementproject.controller;
 
+import com.example.managementproject.dto.WhBanAnLenhQdRequest;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhDoiTuong;
 import com.example.managementproject.service.WhBanAnLenhQdService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,17 +15,18 @@ public class WhBanAnLenhQdController {
     private WhBanAnLenhQdService whBanAnLenhQdService;
 
     @PostMapping
-    public WhBanAnLenhQd  create(@RequestBody WhBanAnLenhQd wd, @RequestParam Long id){
-        return whBanAnLenhQdService.create(wd,id);
+    public ResponseEntity<WhBanAnLenhQd> create(@RequestBody WhBanAnLenhQdRequest request){
+        return ResponseEntity.ok(whBanAnLenhQdService.create(request));
     }
 
     @PutMapping("/{id}")
-    public  WhBanAnLenhQd update(@PathVariable Long id,@RequestBody WhBanAnLenhQd wd, @RequestParam Long doituongId){
-        return whBanAnLenhQdService.update(id,wd,doituongId);
+    public  ResponseEntity<WhBanAnLenhQd> update(@PathVariable Long id,@RequestBody WhBanAnLenhQdRequest request){
+        return ResponseEntity.ok(whBanAnLenhQdService.update(id,request));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         whBanAnLenhQdService.delete(id);
+        return ResponseEntity.ok().build();
     }
 }
