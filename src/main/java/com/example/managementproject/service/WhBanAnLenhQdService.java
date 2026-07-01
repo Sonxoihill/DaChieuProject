@@ -1,11 +1,13 @@
 package com.example.managementproject.service;
 
 import com.example.managementproject.dto.WhBanAnLenhQdRequest;
+import com.example.managementproject.dto.WhBanAnLenhQdResponse;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhDoiTuong;
 import com.example.managementproject.repository.WhBanAnLenhQdRepository;
 import com.example.managementproject.repository.WhDoiTuongRepository;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,38 +21,31 @@ public class WhBanAnLenhQdService {
     @Autowired
     private WhDoiTuongRepository whDoiTuongRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Transactional
-    public WhBanAnLenhQd create(WhBanAnLenhQdRequest request){
+    public WhBanAnLenhQdResponse create(WhBanAnLenhQdRequest request){
         WhDoiTuong whDoiTuong = whDoiTuongRepository.findById(request.getDoiTuongId())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay doi tuong"));
 
-        WhBanAnLenhQd banAn = new WhBanAnLenhQd();
-        banAn.setDoiTuong(whDoiTuong);
-        banAn.setCoBanAnHinhSu(request.getCoBanAnHinhSu());
-        banAn.setDienId(request.getDienId());
-        banAn.setNgayVaoDien(request.getNgayVaoDien());
-        banAn.setNgayKetThucDien(request.getNgayKetThucDien());
-        banAn.setTinhTrangQuanLy(request.getTinhTrangQuanLy());
-        banAn.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
+        WhBanAnLenhQd banAn = modelMapper.map(request, WhBanAnLenhQd.class);
 
+        banAn.setDoiTuong(whDoiTuong);
         banAn.setThaoTacCuoi(1);
         banAn.setSyncVnpt(0);
         banAn.setTimeSyncVnpt(new Date());
 
-        return whBanAnLenhQdRepository.save(banAn);
+        WhBanAnLenhQd saved = whBanAnLenhQdRepository.save(banAn);
+        return convertToResponse(saved);
     }
 
     @Transactional
-    public WhBanAnLenhQd update(Long id, WhBanAnLenhQdRequest request){
+    public WhBanAnLenhQdResponse update(Long id, WhBanAnLenhQdRequest request){
         WhBanAnLenhQd whBanAn = whBanAnLenhQdRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay ban an qd"));
 
-        whBanAn.setCoBanAnHinhSu(request.getCoBanAnHinhSu());
-        whBanAn.setDienId(request.getDienId());
-        whBanAn.setNgayVaoDien(request.getNgayVaoDien());
-        whBanAn.setNgayKetThucDien(request.getNgayKetThucDien());
-        whBanAn.setTinhTrangQuanLy(request.getTinhTrangQuanLy());
-        whBanAn.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
+        modelMapper.map(request, whBanAn);
 
         if(request.getDoiTuongId() != null){
             WhDoiTuong dt = whDoiTuongRepository.findById(request.getDoiTuongId())
@@ -61,8 +56,17 @@ public class WhBanAnLenhQdService {
         whBanAn.setThaoTacCuoi(2);
         whBanAn.setSyncVnpt(0);
         whBanAn.setTimeSyncVnpt(new Date());
+        WhBanAnLenhQd updated = whBanAnLenhQdRepository.save(whBanAn);
 
-        return whBanAnLenhQdRepository.save(whBanAn);
+        return convertToResponse(updated);
+    }
+
+    private WhBanAnLenhQdResponse convertToResponse(WhBanAnLenhQd whBanAn){
+        WhBanAnLenhQdResponse res = modelMapper.map(whBanAn, WhBanAnLenhQdResponse.class);
+        if(whBanAn.getDoiTuong() != null){
+            res.setDoiTuongId(whBanAn.getDoiTuong().getId());
+        }
+        return res;
     }
 
     @Transactional

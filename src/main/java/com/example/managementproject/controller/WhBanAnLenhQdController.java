@@ -1,6 +1,7 @@
 package com.example.managementproject.controller;
 
 import com.example.managementproject.dto.WhBanAnLenhQdRequest;
+import com.example.managementproject.dto.WhBanAnLenhQdResponse;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhDoiTuong;
 import com.example.managementproject.service.WhBanAnLenhQdService;
@@ -15,12 +16,12 @@ public class WhBanAnLenhQdController {
     private WhBanAnLenhQdService whBanAnLenhQdService;
 
     @PostMapping
-    public ResponseEntity<WhBanAnLenhQd> create(@RequestBody WhBanAnLenhQdRequest request){
+    public ResponseEntity<WhBanAnLenhQdResponse> create(@RequestBody WhBanAnLenhQdRequest request){
         return ResponseEntity.ok(whBanAnLenhQdService.create(request));
     }
 
     @PutMapping("/{id}")
-    public  ResponseEntity<WhBanAnLenhQd> update(@PathVariable Long id,@RequestBody WhBanAnLenhQdRequest request){
+    public  ResponseEntity<WhBanAnLenhQdResponse> update(@PathVariable Long id,@RequestBody WhBanAnLenhQdRequest request){
         return ResponseEntity.ok(whBanAnLenhQdService.update(id,request));
     }
 

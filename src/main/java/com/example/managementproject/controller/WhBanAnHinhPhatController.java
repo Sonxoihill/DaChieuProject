@@ -1,6 +1,7 @@
 package com.example.managementproject.controller;
 
 import com.example.managementproject.dto.WhBanAnHinhPhatRequest;
+import com.example.managementproject.dto.WhBanAnHinhPhatResponse;
 import com.example.managementproject.entity.WhBanAnHinhPhat;
 import com.example.managementproject.service.WhBanAnHinhPhatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,12 @@ public class WhBanAnHinhPhatController {
     WhBanAnHinhPhatService whBanAnHinhPhatService;
 
     @PostMapping
-    public ResponseEntity<WhBanAnHinhPhat> create(@RequestBody WhBanAnHinhPhatRequest request){
+    public ResponseEntity<WhBanAnHinhPhatResponse> create(@RequestBody WhBanAnHinhPhatRequest request){
         return ResponseEntity.ok(whBanAnHinhPhatService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WhBanAnHinhPhat> update(@PathVariable Long id, @RequestBody WhBanAnHinhPhatRequest request){
+    public ResponseEntity<WhBanAnHinhPhatResponse> update(@PathVariable Long id, @RequestBody WhBanAnHinhPhatRequest request){
         return ResponseEntity.ok(whBanAnHinhPhatService.update(id, request));
     }
 

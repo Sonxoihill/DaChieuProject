@@ -1,13 +1,17 @@
 package com.example.managementproject.service;
 
+import com.example.managementproject.dto.WhBanAnLenhQdResponse;
 import com.example.managementproject.dto.WhBanAnLenhQdToiPhamRequest;
+import com.example.managementproject.dto.WhBanAnLenhQdToiPhamResponse;
 import com.example.managementproject.entity.WhBanAnLenhQd;
 import com.example.managementproject.entity.WhBanAnLenhQdToiPham;
 import com.example.managementproject.repository.WhBanAnLenhQdRepository;
 import com.example.managementproject.repository.WhBanAnLenhQdToiPhamRepository;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
 
@@ -19,30 +23,31 @@ public class WhBanAnLenhQdToiPhamService {
     @Autowired
     WhBanAnLenhQdRepository whBanAnLenhQdRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Transactional
-    public WhBanAnLenhQdToiPham create(WhBanAnLenhQdToiPhamRequest request) {
+    public WhBanAnLenhQdToiPhamResponse create(WhBanAnLenhQdToiPhamRequest request) {
         WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
                 .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
 
-        WhBanAnLenhQdToiPham wd = new WhBanAnLenhQdToiPham();
-        wd.setBanAnLenhQd(banAn);
-        wd.setToiPhamId(request.getToiPhamId());
-        wd.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
+        WhBanAnLenhQdToiPham wd = modelMapper.map(request,WhBanAnLenhQdToiPham.class);
 
+        wd.setBanAnLenhQd(banAn);
         wd.setThaoTacCuoi(1);
         wd.setSyncVnpt(0);
         wd.setTimeSyncVnpt(new Date());
 
-        return whBanAnLenhQdToiPhamRepository.save(wd);
+        WhBanAnLenhQdToiPham saved = whBanAnLenhQdToiPhamRepository.save(wd);
+        return convertToResponse(saved);
     }
 
     @Transactional
-    public WhBanAnLenhQdToiPham update(Long id, WhBanAnLenhQdToiPhamRequest request) {
+    public WhBanAnLenhQdToiPhamResponse update(Long id, WhBanAnLenhQdToiPhamRequest request) {
         WhBanAnLenhQdToiPham tp = whBanAnLenhQdToiPhamRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
 
-        tp.setToiPhamId(request.getToiPhamId());
-        tp.setDiaBanQuanLyCode(request.getDiaBanQuanLyCode());
+        modelMapper.map(request,tp);
 
         if(request.getBanAnLenhQdId() != null){
             WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
@@ -55,7 +60,15 @@ public class WhBanAnLenhQdToiPhamService {
         tp.setSyncVnpt(0);
         tp.setTimeSyncVnpt(new Date());
 
-        return whBanAnLenhQdToiPhamRepository.save(tp);
+        return convertToResponse(whBanAnLenhQdToiPhamRepository.save(tp));
+    }
+
+    public WhBanAnLenhQdToiPhamResponse convertToResponse(@RequestBody WhBanAnLenhQdToiPham tp){
+        WhBanAnLenhQdToiPhamResponse res = modelMapper.map(tp, WhBanAnLenhQdToiPhamResponse.class);
+        if(tp.getBanAnLenhQd() != null){
+            res.setBanAnLenhQdId(tp.getBanAnLenhQd().getId());
+        }
+        return res;
     }
 
     @Transactional
