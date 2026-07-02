@@ -1,5 +1,6 @@
 package com.example.managementproject.service;
 
+import com.example.managementproject.dto.WhDoiTuongBulkRequest;
 import com.example.managementproject.dto.WhDoiTuongRequest;
 import com.example.managementproject.dto.WhDoiTuongResponse;
 import com.example.managementproject.entity.WhDoiTuong;
@@ -9,7 +10,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.example.managementproject.constant.AppConstants.*;
 
 @Service
 public class WhDoiTuongService {
@@ -20,39 +27,33 @@ public class WhDoiTuongService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public WhDoiTuongResponse create(WhDoiTuongRequest request) {
-        WhDoiTuong doiTuong = modelMapper.map(request, WhDoiTuong.class);
+    public List<WhDoiTuongResponse> addOrUpdate(WhDoiTuongBulkRequest bulkRequest) {
+        List<WhDoiTuong> entitiestoSave = new ArrayList<>();
+        for(WhDoiTuongRequest dto : bulkRequest.getData()) {
+            Optional<WhDoiTuong> existingEntity = whDoiTuongRepository.findByMaDinhDanh(dto.getMaDinhDanh());
 
-        doiTuong.setSoBanAnLenhQd(0);
-        doiTuong.setSoBanAnLenhQdHieuLuc(0);
-        doiTuong.setThaoTacCuoi(1);
-        doiTuong.setSyncVnpt(0);
-        doiTuong.setTimeSyncVnpt(new Date());
+            WhDoiTuong doiTuong;
+            Date current = new Date();
+            if(existingEntity.isPresent()) {
+                doiTuong = existingEntity.get();
+                modelMapper.map(dto, doiTuong);
+                doiTuong.setNgaySuaCuoi(current);
+                doiTuong.setThaoTacCuoi(THAO_TAC_SUA);
+            }else {
+                doiTuong = modelMapper.map(dto, WhDoiTuong.class);
+                doiTuong.setSoBanAnLenhQd(INITIAL_COUNT);
+                doiTuong.setThaoTacCuoi(THAO_TAC_THEM);
+            }
 
-        WhDoiTuong saved = whDoiTuongRepository.save(doiTuong);
-        return modelMapper.map(saved, WhDoiTuongResponse.class);
+            doiTuong.setSyncVnpt(SYNC_STATUS_PENDING);
+            doiTuong.setTimeSyncVnpt(current);
+            entitiestoSave.add(doiTuong);
+        }
+
+        List<WhDoiTuong> savedEntities = whDoiTuongRepository.saveAll(entitiestoSave);
+        return savedEntities.stream()
+                .map(entity -> modelMapper.map(entity, WhDoiTuongResponse.class))
+                .collect(Collectors.toList());
     }
 
-    @Transactional
-    public WhDoiTuongResponse update(Long id, WhDoiTuongRequest request) {
-        WhDoiTuong dt = whDoiTuongRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay doi tuong"));
-        modelMapper.map(request, dt);
-
-        dt.setNgaySuaCuoi(new Date());
-        dt.setThaoTacCuoi(2);
-        dt.setSyncVnpt(0);
-        dt.setTimeSyncVnpt(new Date());
-        WhDoiTuong updated = whDoiTuongRepository.save(dt);
-
-        return modelMapper.map(updated, WhDoiTuongResponse.class);
-    }
-
-    @Transactional
-    public void delete(Long id){
-       if(!whDoiTuongRepository.existsById(id)){
-           throw new RuntimeException("Khong tim thay doi tuong");
-       }
-        whDoiTuongRepository.deleteById(id);
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.managementproject.service;
 
 import com.example.managementproject.dto.WhBanAnLenhQdResponse;
+import com.example.managementproject.dto.WhBanAnLenhQdToiPhamBulkRequest;
 import com.example.managementproject.dto.WhBanAnLenhQdToiPhamRequest;
 import com.example.managementproject.dto.WhBanAnLenhQdToiPhamResponse;
 import com.example.managementproject.entity.WhBanAnLenhQd;
@@ -13,7 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.example.managementproject.constant.AppConstants.*;
 
 @Service
 public class WhBanAnLenhQdToiPhamService {
@@ -27,55 +34,39 @@ public class WhBanAnLenhQdToiPhamService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public WhBanAnLenhQdToiPhamResponse create(WhBanAnLenhQdToiPhamRequest request) {
-        WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
-                .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
+    public List<WhBanAnLenhQdToiPhamResponse> addOrUpdate(WhBanAnLenhQdToiPhamBulkRequest bulkRequest) {
+        List<WhBanAnLenhQdToiPham> entitiesToSave = new ArrayList<>();
 
-        WhBanAnLenhQdToiPham wd = modelMapper.map(request,WhBanAnLenhQdToiPham.class);
+        for(WhBanAnLenhQdToiPhamRequest dto : bulkRequest.getData()){
+            Optional<WhBanAnLenhQdToiPham> existingEntity = whBanAnLenhQdToiPhamRepository.findByBanAnLenhQdIdAndToiPhamId(dto.getBanAnLenhQdId(), dto.getToiPhamId());
 
-        wd.setBanAnLenhQd(banAn);
-        wd.setThaoTacCuoi(1);
-        wd.setSyncVnpt(0);
-        wd.setTimeSyncVnpt(new Date());
+            WhBanAnLenhQdToiPham toiPham;
+            Date now = new Date();
+            if(existingEntity.isPresent()){
+                toiPham = existingEntity.get();
+                modelMapper.map(dto, toiPham);
+                toiPham.setThaoTacCuoi(THAO_TAC_SUA);
+                toiPham.setNgaySuaCuoi(now);
+            } else {
+                WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(dto.getBanAnLenhQdId())
+                        .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
+                toiPham = modelMapper.map(dto, WhBanAnLenhQdToiPham.class);
+                toiPham.setBanAnLenhQd(banAn);
+                toiPham.setThaoTacCuoi(THAO_TAC_THEM);
+            }
 
-        WhBanAnLenhQdToiPham saved = whBanAnLenhQdToiPhamRepository.save(wd);
-        return convertToResponse(saved);
-    }
-
-    @Transactional
-    public WhBanAnLenhQdToiPhamResponse update(Long id, WhBanAnLenhQdToiPhamRequest request) {
-        WhBanAnLenhQdToiPham tp = whBanAnLenhQdToiPhamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
-
-        modelMapper.map(request,tp);
-
-        if(request.getBanAnLenhQdId() != null){
-            WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(request.getBanAnLenhQdId())
-                    .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
-            tp.setBanAnLenhQd(banAn);
+            toiPham.setSyncVnpt(SYNC_STATUS_PENDING);
+            toiPham.setTimeSyncVnpt(now);
+            entitiesToSave.add(toiPham);
         }
 
-        tp.setNgaySuaCuoi(new Date());
-        tp.setThaoTacCuoi(2);
-        tp.setSyncVnpt(0);
-        tp.setTimeSyncVnpt(new Date());
-
-        return convertToResponse(whBanAnLenhQdToiPhamRepository.save(tp));
+        List<WhBanAnLenhQdToiPham> savedEntities = whBanAnLenhQdToiPhamRepository.saveAll(entitiesToSave);
+        return savedEntities.stream()
+                .map(entity -> {
+                    WhBanAnLenhQdToiPhamResponse res = modelMapper.map(entity, WhBanAnLenhQdToiPhamResponse.class);
+                    if(entity.getBanAnLenhQd() != null) res.setBanAnLenhQdId(entity.getBanAnLenhQd().getId());
+                    return res;
+                }).collect(Collectors.toList());
     }
 
-    public WhBanAnLenhQdToiPhamResponse convertToResponse(@RequestBody WhBanAnLenhQdToiPham tp){
-        WhBanAnLenhQdToiPhamResponse res = modelMapper.map(tp, WhBanAnLenhQdToiPhamResponse.class);
-        if(tp.getBanAnLenhQd() != null){
-            res.setBanAnLenhQdId(tp.getBanAnLenhQd().getId());
-        }
-        return res;
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        if(!whBanAnLenhQdToiPhamRepository.existsById(id)){
-            throw new RuntimeException("Khong tim thay ban an toi pham");
-        }
-        whBanAnLenhQdToiPhamRepository.deleteById(id);
-    }
 }
