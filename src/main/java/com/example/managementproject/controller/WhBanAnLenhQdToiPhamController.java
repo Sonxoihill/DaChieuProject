@@ -21,8 +21,9 @@ public class WhBanAnLenhQdToiPhamController {
     WhBanAnLenhQdToiPhamService whBanAnLenhQdToiPhamService;
 
     @PostMapping("/sync")
-    public ResponseEntity<List<WhBanAnLenhQdToiPhamResponse>> addOrUpdate(@Valid @RequestBody WhBanAnLenhQdToiPhamBulkRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(whBanAnLenhQdToiPhamService.addOrUpdate(request));
+    public ResponseEntity<String> addOrUpdate(@Valid @RequestBody WhBanAnLenhQdToiPhamBulkRequest request){
+        whBanAnLenhQdToiPhamService.addOrUpdate(request);
+        return ResponseEntity.ok("Dong bo danh sach ban an toi pham thanh cong");
     }
 
 }

@@ -10,8 +10,10 @@ import com.example.managementproject.repository.WhBanAnLenhQdRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,40 +33,52 @@ public class WhBanAnHinhPhatService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
     @Transactional
-    public List<WhBanAnHinhPhatResponse> addOrUpdate(WhBanAnHinhPhatBulkRequest bulkRequest) {
-       List<WhBanAnHinhPhat> entitiesToSave = new ArrayList<>();
-       for(WhBanAnHinhPhatRequest dto : bulkRequest.getData()){
-           Optional<WhBanAnHinhPhat> existingEntity = whBanAnHinhPhatRepository.findByBanAnLenhQdIdAndHanhViXuPhatId(dto.getBanAnLenhQdId(),  dto.getHanhViXuPhatId());
+    public void addOrUpdate(WhBanAnHinhPhatBulkRequest bulkRequest) {
+       if(bulkRequest.getData() == null || bulkRequest.getData().isEmpty()) return;
 
-           WhBanAnHinhPhat hp;
-           Date now = new Date();
-           if(existingEntity.isPresent()){
-               hp = existingEntity.get();
-               modelMapper.map(dto,hp);
-               hp.setThaoTacCuoi(THAO_TAC_SUA);
-               hp.setNgaySuaCuoi(now);
-           } else {
-               WhBanAnLenhQd banAn = whBanAnLenhQdRepository.findById(dto.getBanAnLenhQdId())
-                       .orElseThrow(() -> new RuntimeException("Khong tim thay ban an"));
-               hp = modelMapper.map(dto, WhBanAnHinhPhat.class);
-               hp.setBanAnLenhQd(banAn);
-               hp.setThaoTacCuoi(THAO_TAC_THEM);
-           }
+       List<Long> requestIds = bulkRequest.getData().stream()
+               .map(WhBanAnHinhPhatRequest::getId)
+               .collect(Collectors.toList());
 
-           hp.setSyncVnpt(SYNC_STATUS_PENDING);
-           hp.setTimeSyncVnpt(now);
-           entitiesToSave.add(hp);
+       List<Long> existingIds = whBanAnHinhPhatRepository.findExistingIds(requestIds);
+       List<WhBanAnHinhPhatRequest> inserts = bulkRequest.getData().stream()
+               .filter(dto -> !existingIds.contains(dto.getId()))
+               .collect(Collectors.toList());
+
+       List<WhBanAnHinhPhatRequest> updates = bulkRequest.getData().stream()
+               .filter(dto -> existingIds.contains(dto.getId()))
+               .collect(Collectors.toList());
+
+       if(!inserts.isEmpty()) {
+           String insertSql = "INSERT INTO wh_ban_an_hinh_phat (id, ban_an_lenh_qd_id, hanh_vi_xu_phat_id, dia_ban_quan_ly_code, thao_tac_cuoi, sync_vnpt) VALUES (?, ?, ?, ?, ?, ?)";
+
+           jdbcTemplate.batchUpdate(insertSql, inserts, BATCH_SIZE, (ps, dto) -> {
+              ps.setObject(1, dto.getId());
+              ps.setObject(2, dto.getBanAnLenhQdId());
+              ps.setObject(3, dto.getHanhViXuPhatId());
+              ps.setObject(4, dto.getDiaBanQuanLyCode());
+              ps.setInt(5, THAO_TAC_THEM);
+              ps.setInt(6, SYNC_STATUS_PENDING);
+           });
        }
 
-       List<WhBanAnHinhPhat> savedEntities = whBanAnHinhPhatRepository.saveAll(entitiesToSave);
-       return savedEntities.stream()
-               .map(entity -> {
-                   WhBanAnHinhPhatResponse res = modelMapper.map(entity, WhBanAnHinhPhatResponse.class);
-                   if(entity.getBanAnLenhQd() != null) res.setBanAnLenhQdId(entity.getBanAnLenhQd().getId());
-                   return res;
-               }).collect(Collectors.toList());
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+
+       if(!updates.isEmpty()) {
+           String updateSql = "UPDATE wh_ban_an_hinh_phat SET ban_an_lenh_qd_id = ?, hanh_vi_xu_phat_id = ?, dia_ban_quan_ly_code = ?, thao_tac_cuoi = ?, ngay_sua_cuoi = ? WHERE id = ?";
+
+           jdbcTemplate.batchUpdate(updateSql, updates, BATCH_SIZE, (ps, dto) -> {
+               ps.setObject(1, dto.getBanAnLenhQdId());
+               ps.setObject(2, dto.getHanhViXuPhatId());
+               ps.setObject(3, dto.getDiaBanQuanLyCode());
+               ps.setObject(4, THAO_TAC_SUA);
+               ps.setTimestamp(5, currentTimestamp);
+               ps.setObject(6, dto.getId());
+           });
+       }
     }
-
-
 }

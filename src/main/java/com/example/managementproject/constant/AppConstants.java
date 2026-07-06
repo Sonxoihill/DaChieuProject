@@ -8,4 +8,6 @@ public class AppConstants {
 
     public static final int SYNC_STATUS_PENDING = 0;
     public static final int SYNC_STATUS_SUCCESS = 1;
+
+    public static final int BATCH_SIZE = 500;
 }

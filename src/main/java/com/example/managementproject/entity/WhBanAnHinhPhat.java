@@ -16,7 +16,6 @@ import java.util.Date;
 public class WhBanAnHinhPhat {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

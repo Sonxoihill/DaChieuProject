@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống giám sát điều hành</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 320px;
+        }
+
+        .chart-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            border-left: 4px solid #dc3545;
+            padding-left: 8px;
+        }
+
+        .placeholder-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f3f5;
+            color: #6c757d;
+            font-style: italic;
+            border: 1px dashed #ced4da;
+            height: 320px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 sidebar">
+            <h5 class="text-danger fw-bold mb-4">TIÊU CHÍ TÌM KIẾM</h5>
+            <form id="filterForm" th:action="@{/dashboard/toi-danh}" th:object="${filters}" method="get">
+
+                <!--                <input type="hidden" id="tinhChatToiDanhSelected" th:field="*{tinhChatToiDanhSelected}" />-->
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Địa bàn (Xã/Phường)</label>
+                    <select class="form-select" th:field="*{maXaCommune}">
+                        <option value="">-- Tất cả địa bàn --</option>
+                        <option value="XA01">Xã Hòa Bình (XA01)</option>
+                        <option value="XA02">Phường Đà Nẵng (XA02)</option>
+                        <option value="XA03">Xã Tam Đa (XA03)</option>
+                        <option value="XA04">Xã An Đồng (XA04)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Giới tính</label>
+                    <select class="form-select" th:field="*{gioiTinh}">
+                        <option value="">-- Tất cả giới tính --</option>
+                        <option value="1">Nam</option>
+                        <option value="2">Nữ</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Thành phần Dân tộc</label>
+                    <select class="form-select" th:field="*{danTocId}">
+                        <option value="">-- Tất cả dân tộc --</option>
+                        <option value="1">Kinh</option>
+                        <option value="2">Mường</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Tôn giáo</label>
+                    <select class="form-select" th:field="*{tonGiaoId}">
+                        <option value="">-- Tất cả tôn giáo --</option>
+                        <option value="1">Phật giáo</option>
+                        <option value="2">Công giáo</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Nhóm độ tuổi</label>
+                    <select class="form-select" th:field="*{doTuoi}">
+                        <option value="">-- Tất cả độ tuổi --</option>
+                        <option value="DUOI_16">Dưới 16 tuổi</option>
+                        <option value="TUOI_18_30">Từ 18 đến 30 tuổi</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-danger">Tính chất tội danh</label>
+                    <select class="form-select" th:field="*{tinhChatToiDanhSelected}" id="tinhChatToiDanhSelected">
+                        <option value="">-- Tất cả tội danh --</option>
+                        <option value="1">Xâm hại tình dục</option>
+                        <option value="2">Trộm cắp tài sản</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-danger py-2 fw-bold">Tra cứu</button>
+                    <button type="button" class="btn btn-outline-secondary py-2" onclick="resetForm()">Làm mới bộ lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-9 p-4">
+            <h4 class="fw-bold mb-4 text-dark">KẾT QUẢ TRA CỨU ĐA CHIỀU</h4>
+
+            <div class="row" th:if="${#strings.isEmpty(filters.tinhChatToiDanhSelected)}">
+                <div class="col-md-12">
+                    <div class="chart-card">
+                        <div class="chart-title">BIỂU ĐỒ 1: SO SÁNH CƠ CẤU GIỮA CÁC TỘI DANH</div>
+                        <div id="chartToiDanh" class="chart-container" style="height: 480px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-title">A. PHÂN BỔ ĐỊA BÀN CHI TIẾT THEO GIỚI TÍNH</div>
+                        <div class="small text-muted mb-2">
+                            Đơn vị: <span class="fw-bold text-danger"
+                                          th:text="${filters.maXaCommune != null and filters.maXaCommune != '' ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                            • Đang xem: <span class="fw-bold text-primary"
+                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                        </div>
+                        <div id="chartDiaBanGioiTinh" class="chart-container"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-title">B. PHÂN BỔ THEO THÀNH PHẦN DÂN TỘC</div>
+                        <div class="small text-muted mb-2" th:if="${dashboardData.chartBDanToc != null}">
+                            Đơn vị: <span class="fw-bold text-danger"
+                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                            • Đang xem: <span class="fw-bold text-success"
+                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                        </div>
+                        <div th:if="${dashboardData.chartBDanToc != null}" id="chartDanToc"
+                             class="chart-container"></div>
+                        <div th:unless="${dashboardData.chartBDanToc != null}" class="placeholder-card">Hệ thống ẩn do
+                            bạn đang lọc chi tiết một Dân tộc cụ thể
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-title">C. PHÂN BỔ CHI TIẾT THEO TÔN GIÁO</div>
+                        <div class="small text-muted mb-2" th:if="${dashboardData.chartCTonGiao != null}">
+                            Đơn vị: <span class="fw-bold text-danger"
+                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                            • Đang xem: <span class="fw-bold text-info"
+                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                        </div>
+                        <div th:if="${dashboardData.chartCTonGiao != null}" id="chartTonGiao"
+                             class="chart-container"></div>
+                        <div th:unless="${dashboardData.chartCTonGiao != null}" class="placeholder-card">Hệ thống ẩn do
+                            bạn đang lọc chi tiết một Tôn giáo cụ thể
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-title">D. CƠ CẤU THEO CÁC PHÂN KHÚC ĐỘ TUỔI</div>
+                        <div class="small text-muted mb-2" th:if="${dashboardData.chartDDoTuoi != null}">
+                            Đơn vị: <span class="fw-bold text-danger"
+                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                            • Đang xem: <span class="fw-bold text-warning"
+                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                        </div>
+                        <div th:if="${dashboardData.chartDDoTuoi != null}" id="chartDoTuoi"
+                             class="chart-container"></div>
+                        <div th:unless="${dashboardData.chartDDoTuoi != null}" class="placeholder-card">Hệ thống ẩn do
+                            bạn đang lọc chi tiết một Nhóm tuổi cụ thể
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const dataFromBackend = [[${dashboardData}]];
+    const currentFilters = [[${filters}]];
+
+    if (dataFromBackend.chart1ToiDanh && dataFromBackend.chart1ToiDanh.length > 0) {
+        const myChart1 = echarts.init(document.getElementById('chartToiDanh'));
+        const labels = dataFromBackend.chart1ToiDanh.map(item => item.label);
+        const values = dataFromBackend.chart1ToiDanh.map(item => item.value);
+        const ids = dataFromBackend.chart1ToiDanh.map(item => item.series);
+
+        myChart1.setOption({
+            tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+            grid: {left: '3%', right: '6%', bottom: '3%', top: '3%', containLabel: true},
+            xAxis: {type: 'value', name: 'Số đối tượng'},
+            yAxis: {
+                type: 'category',
+                data: labels,
+                axisLabel: {interval: 0}
+            },
+            dataZoom: [
+                {type: 'inside', yAxisIndex: 0, start: 0, end: 100}
+            ],
+            series: [{data: values, type: 'bar', itemStyle: {color: '#a82222'}}]
+        });
+
+        myChart1.on('click', function (params) {
+            const selectedToiDanhId = ids[params.dataIndex];
+            document.getElementById('tinhChatToiDanhSelected').value = selectedToiDanhId;
+            document.getElementById('filterForm').submit();
+        });
+    }
+
+    if (dataFromBackend.chartADiaBanGioiTinh && dataFromBackend.chartADiaBanGioiTinh.length > 0) {
+        const myChartA = echarts.init(document.getElementById('chartDiaBanGioiTinh'));
+
+        const dicMaXa = {
+            'XA01': 'Xã Hòa Bình',
+            'XA02': 'Phường Đà Nẵng',
+            'XA03': 'Xã Tam Đa',
+            'XA04': 'Xã An Đồng',
+            'Unknown': 'Không xác định'
+        };
+
+        const uniqueCodes = [...new Set(dataFromBackend.chartADiaBanGioiTinh.map(item => item.label))];
+
+        const uniqueLabels = uniqueCodes.map(code => dicMaXa[code] || code);
+
+        const namData = uniqueCodes.map(code => {
+            const found = dataFromBackend.chartADiaBanGioiTinh.find(item => item.label === code && item.subLabel === 'NAM');
+            return found ? found.value : 0;
+        });
+        const nuData = uniqueCodes.map(code => {
+            const found = dataFromBackend.chartADiaBanGioiTinh.find(item => item.label === code && item.subLabel === 'NU');
+            return found ? found.value : 0;
+        });
+
+        myChartA.setOption({
+            tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+            legend: {data: ['Nam', 'Nữ'], bottom: 0},
+            grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
+            xAxis: {
+                type: 'category',
+                data: uniqueLabels,
+                axisLabel: {interval: 0, rotate: 20}
+            },
+            yAxis: {type: 'value', name: 'Đối tượng'},
+            dataZoom: [{type: 'inside', start: 0, end: 100}],
+            series: [
+                {name: 'Nam', type: 'bar', data: namData, itemStyle: {color: '#1890ff'}, label: {show: true, position: 'top'}},
+                {name: 'Nữ', type: 'bar', data: nuData, itemStyle: {color: '#ff4d4f'}, label: {show: true, position: 'top'}}
+            ]
+        });
+    }
+
+    if (dataFromBackend.chartBDanToc && dataFromBackend.chartBDanToc.length > 0) {
+        const myChartB = echarts.init(document.getElementById('chartDanToc'));
+        const labels = dataFromBackend.chartBDanToc.map(item => item.label);
+        const values = dataFromBackend.chartBDanToc.map(item => item.value);
+
+        myChartB.setOption({
+            tooltip: {trigger: 'axis', axisPointer: {type: 'cross'}},
+            grid: {left: '3%', right: '4%', bottom: '15%', top: '5%', containLabel: true},
+            xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 35}},
+            yAxis: {type: 'value'},
+            dataZoom: [{type: 'inside', start: 0, end: 70}],
+            series: [{
+                data: values,
+                type: 'bar',
+                itemStyle: {color: '#91cc75'}
+            }]
+        });
+    }
+
+    if (dataFromBackend.chartCTonGiao && dataFromBackend.chartCTonGiao.length > 0) {
+        const myChartC = echarts.init(document.getElementById('chartTonGiao'));
+        const labels = dataFromBackend.chartCTonGiao.map(item => item.label);
+        const values = dataFromBackend.chartCTonGiao.map(item => item.value);
+
+        myChartC.setOption({
+            tooltip: {trigger: 'item'},
+            grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
+            xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 20}},
+            yAxis: {type: 'value'},
+            series: [{
+                data: values,
+                type: 'bar',
+                itemStyle: {color: '#73c0de'}
+            }]
+        });
+    }
+
+    if (dataFromBackend.chartDDoTuoi && dataFromBackend.chartDDoTuoi.length > 0) {
+        const myChartD = echarts.init(document.getElementById('chartDoTuoi'));
+        const labels = dataFromBackend.chartDDoTuoi.map(item => item.label);
+        const values = dataFromBackend.chartDDoTuoi.map(item => item.value);
+
+        myChartD.setOption({
+            tooltip: {trigger: 'axis'},
+            grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
+            xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 15}},
+            yAxis: {type: 'value'},
+            series: [{
+                data: values,
+                type: 'bar',
+                itemStyle: {color: '#fac858'}
+            }]
+        });
+    }
+
+    function resetForm() {
+        document.getElementById('maXaCommune').value = '';
+        document.getElementById('gioiTinh').value = '';
+        document.getElementById('danTocId').value = '';
+        document.getElementById('tonGiaoId').value = '';
+        document.getElementById('doTuoi').value = '';
+        document.getElementById('tinhChatToiDanhSelected').value = '';
+        document.getElementById('filterForm').submit();
+    }
+</script>
+</body>
+</html>

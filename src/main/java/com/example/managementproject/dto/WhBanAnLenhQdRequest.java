@@ -6,6 +6,9 @@ import lombok.Data;
 
 @Data
 public class WhBanAnLenhQdRequest {
+    @NotNull(message = "ID bản án không được để trống")
+    private Long id;
+
     @NotNull(message = "ID đối tượng không được để trống")
     private Long doiTuongId;
 

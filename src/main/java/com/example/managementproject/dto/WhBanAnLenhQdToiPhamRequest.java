@@ -7,6 +7,9 @@ import lombok.Data;
 @Data
 public class WhBanAnLenhQdToiPhamRequest {
 
+    @NotNull(message = "ID bản án tội phạm không được để trống")
+    private Long id;
+
     @NotNull(message = "ID tội phạm không được để trống")
     private Long toiPhamId;
 

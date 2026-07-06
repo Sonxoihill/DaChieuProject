@@ -5,6 +5,9 @@ import lombok.Data;
 
 @Data
 public class WhDoiTuongRequest {
+    @NotNull(message = "ID đối tượng không được để trống")
+    private Long id;
+
     @NotBlank(message = "Mã định danh (CCCD) không được để trống")
     @Size(min = 12, max = 12, message = "Mã định danh phải chính xác 12 số")
     @Pattern(regexp = "^[0-9]+$", message = "Mã định danh chỉ được chứa các ký tự số")

@@ -20,7 +20,8 @@ public class WhBanAnHinhPhatController {
     WhBanAnHinhPhatService whBanAnHinhPhatService;
 
     @PostMapping("/sync")
-    public ResponseEntity<List<WhBanAnHinhPhatResponse>> addOrUpdate(@Valid @RequestBody WhBanAnHinhPhatBulkRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(whBanAnHinhPhatService.addOrUpdate(request));
+    public ResponseEntity<String> addOrUpdate(@Valid @RequestBody WhBanAnHinhPhatBulkRequest request){
+        whBanAnHinhPhatService.addOrUpdate(request);
+        return ResponseEntity.ok("Dong bo danh sach hinh phat thanh cong");
     }
 }

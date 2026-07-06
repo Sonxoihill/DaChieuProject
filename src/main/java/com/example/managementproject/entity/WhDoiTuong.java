@@ -15,7 +15,6 @@ import java.util.Date;
 public class WhDoiTuong {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "MA_DINH_DANH", length = 12, nullable = false)
