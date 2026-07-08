@@ -117,14 +117,14 @@ public class DashboardToiDanhService {
                 .collect(Collectors.toList());
         response.setChart1ToiDanh(chart1);
 
-
         List<RawToiDanhMatrix> filteredMatrix = matrixList;
-        if (request.getTinhChatToiDanhSelected() != null) {
+
+        if (request.getTinhChatToiDanhSelected() != null && !String.valueOf(request.getTinhChatToiDanhSelected()).isEmpty()) {
+            String selectedStr = String.valueOf(request.getTinhChatToiDanhSelected());
             filteredMatrix = matrixList.stream()
-                    .filter(m -> request.getTinhChatToiDanhSelected().equals(m.getIdTinhChatToiDanh()))
+                    .filter(m -> m.getIdTinhChatToiDanh() != null && selectedStr.equals(String.valueOf(m.getIdTinhChatToiDanh())))
                     .collect(Collectors.toList());
         }
-
         Map<String, Long> namCountMap = filteredMatrix.stream()
                 .filter(m -> m.getIdGioiTinh() != null && m.getIdGioiTinh() == 1)
                 .collect(Collectors.groupingBy(m -> m.getMaXa() == null ? "Unknown" : m.getMaXa(), Collectors.summingLong(m -> m.getTongSoDt() == null ? 0L : m.getTongSoDt())));
@@ -189,7 +189,6 @@ public class DashboardToiDanhService {
 
             response.setChartDDoTuoi(chartD);
         }
-
 
         return response;
     }

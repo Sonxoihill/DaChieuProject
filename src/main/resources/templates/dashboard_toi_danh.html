@@ -103,8 +103,12 @@
                     <label class="form-label fw-semibold text-secondary">Nhóm độ tuổi</label>
                     <select class="form-select" th:field="*{doTuoi}">
                         <option value="">-- Tất cả độ tuổi --</option>
-                        <option value="DUOI_16">Dưới 16 tuổi</option>
-                        <option value="TUOI_18_30">Từ 18 đến 30 tuổi</option>
+                        <option value="duoi16">Dưới 16 tuổi</option>
+                        <option value="tuoi1618">Từ 16 đến 18 tuổi</option>
+                        <option value="tuoi1830">Từ 18 đến 30 tuổi</option>
+                        <option value="tuoi3045">Từ 30 đến 45 tuổi</option>
+                        <option value="tuoi4560">Từ 45 đến 60 tuổi</option>
+                        <option value="tren60">Trên 60 tuổi</option>
                     </select>
                 </div>
 
@@ -114,6 +118,9 @@
                         <option value="">-- Tất cả tội danh --</option>
                         <option value="1">Xâm hại tình dục</option>
                         <option value="2">Trộm cắp tài sản</option>
+                        <option value="3">Tội phạm về ma túy</option>
+                        <option value="5">Gây rối trật tự công cộng</option>
+                        <option value="14">Giết người</option>
                     </select>
                 </div>
 
@@ -212,11 +219,12 @@
     const dataFromBackend = [[${dashboardData}]];
     const currentFilters = [[${filters}]];
 
-    if (dataFromBackend.chart1ToiDanh && dataFromBackend.chart1ToiDanh.length > 0) {
-        const myChart1 = echarts.init(document.getElementById('chartToiDanh'));
+    const chart1Dom = document.getElementById("chartToiDanh");
+    if (chart1Dom && dataFromBackend.chart1ToiDanh && dataFromBackend.chart1ToiDanh.length > 0) {
+        const myChart1 = echarts.init(chart1Dom);
         const labels = dataFromBackend.chart1ToiDanh.map(item => item.label);
         const values = dataFromBackend.chart1ToiDanh.map(item => item.value);
-        const ids = dataFromBackend.chart1ToiDanh.map(item => item.series);
+        const ids = dataFromBackend.chart1ToiDanh.map(item => item.subLabel);
 
         myChart1.setOption({
             tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
@@ -240,8 +248,10 @@
         });
     }
 
-    if (dataFromBackend.chartADiaBanGioiTinh && dataFromBackend.chartADiaBanGioiTinh.length > 0) {
-        const myChartA = echarts.init(document.getElementById('chartDiaBanGioiTinh'));
+
+    const chartADom = document.getElementById("chartDiaBanGioiTinh");
+    if (chartADom && dataFromBackend.chartADiaBanGioiTinh && dataFromBackend.chartADiaBanGioiTinh.length > 0) {
+        const myChartA = echarts.init(chartADom);
 
         const dicMaXa = {
             'XA01': 'Xã Hòa Bình',
@@ -259,6 +269,7 @@
             const found = dataFromBackend.chartADiaBanGioiTinh.find(item => item.label === code && item.subLabel === 'NAM');
             return found ? found.value : 0;
         });
+
         const nuData = uniqueCodes.map(code => {
             const found = dataFromBackend.chartADiaBanGioiTinh.find(item => item.label === code && item.subLabel === 'NU');
             return found ? found.value : 0;
@@ -282,13 +293,14 @@
         });
     }
 
-    if (dataFromBackend.chartBDanToc && dataFromBackend.chartBDanToc.length > 0) {
-        const myChartB = echarts.init(document.getElementById('chartDanToc'));
+    const chartBDom = document.getElementById("chartDanToc");
+    if (chartBDom && dataFromBackend.chartBDanToc && dataFromBackend.chartBDanToc.length > 0) {
+        const myChartB = echarts.init(chartBDom);
         const labels = dataFromBackend.chartBDanToc.map(item => item.label);
         const values = dataFromBackend.chartBDanToc.map(item => item.value);
 
         myChartB.setOption({
-            tooltip: {trigger: 'axis', axisPointer: {type: 'cross'}},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
             grid: {left: '3%', right: '4%', bottom: '15%', top: '5%', containLabel: true},
             xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 35}},
             yAxis: {type: 'value'},
@@ -301,16 +313,18 @@
         });
     }
 
-    if (dataFromBackend.chartCTonGiao && dataFromBackend.chartCTonGiao.length > 0) {
-        const myChartC = echarts.init(document.getElementById('chartTonGiao'));
+    const chartCDom = document.getElementById("chartTonGiao")
+    if (chartCDom && dataFromBackend.chartCTonGiao && dataFromBackend.chartCTonGiao.length > 0) {
+        const myChartC = echarts.init(chartCDom);
         const labels = dataFromBackend.chartCTonGiao.map(item => item.label);
         const values = dataFromBackend.chartCTonGiao.map(item => item.value);
 
         myChartC.setOption({
-            tooltip: {trigger: 'item'},
+            tooltip: {trigger: 'item', axisPointer: {type: 'shadow'}},
             grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
             xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 20}},
             yAxis: {type: 'value'},
+            dataZoom: [{type: 'inside', start: 0, end: 70}],
             series: [{
                 data: values,
                 type: 'bar',
@@ -319,13 +333,14 @@
         });
     }
 
-    if (dataFromBackend.chartDDoTuoi && dataFromBackend.chartDDoTuoi.length > 0) {
-        const myChartD = echarts.init(document.getElementById('chartDoTuoi'));
+    const chartDDom = document.getElementById("chartDoTuoi");
+    if (chartDDom && dataFromBackend.chartDDoTuoi && dataFromBackend.chartDDoTuoi.length > 0) {
+        const myChartD = echarts.init(chartDDom);
         const labels = dataFromBackend.chartDDoTuoi.map(item => item.label);
         const values = dataFromBackend.chartDDoTuoi.map(item => item.value);
 
         myChartD.setOption({
-            tooltip: {trigger: 'axis'},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
             grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
             xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 15}},
             yAxis: {type: 'value'},
