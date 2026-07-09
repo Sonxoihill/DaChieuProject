@@ -14,6 +14,7 @@ public class DashboardToiDanhResponse {
     private List<ChartDataDTO> chartCTonGiao;
     private List<ChartDataDTO> chartDDoTuoi;
     private String tenToiDanhDangChon;
+    private String tenDonVi;
 
     @Data
     @AllArgsConstructor

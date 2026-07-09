@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,13 @@ public class DashboardToiDanhService {
             Map.entry(3L, "Cao Đài"),
             Map.entry(4L, "Hòa Hảo"),
             Map.entry(5L, "Không tôn giáo")
+    );
+
+    private static final Map<String, String> XA_NAME = Map.of(
+            "XA01", "Xã Hòa Bình",
+            "XA02", "Phường Đà Nẵng",
+            "XA03", "Xã Tam Đa",
+            "XA04", "Xã An Đồng"
     );
 
     public DashboardToiDanhResponse getToiDanhDashboard(DashboardToiDanhRequest request) {
@@ -192,35 +200,44 @@ public class DashboardToiDanhService {
 
         if (request.getTinhChatToiDanhSelected() == null) {
             response.setTenToiDanhDangChon("Tất cả tội danh");
-        } else{
-                String ten = response.getChart1ToiDanh()
-                        .stream()
-                        .filter(x -> Integer.parseInt(x.getSubLabel()) == request.getTinhChatToiDanhSelected())
-                        .map(DashboardToiDanhResponse.ChartDataDTO::getLabel)
-                        .findFirst()
-                        .orElse("Không xác định");
+        } else {
+            String ten = response.getChart1ToiDanh()
+                    .stream()
+                    .filter(x -> Integer.parseInt(x.getSubLabel()) == request.getTinhChatToiDanhSelected())
+                    .map(DashboardToiDanhResponse.ChartDataDTO::getLabel)
+                    .findFirst()
+                    .orElse("Không xác định");
 
-                response.setTenToiDanhDangChon(ten);
-            }
-            return response;
+            response.setTenToiDanhDangChon(ten);
         }
 
-        private String getTenTinhChatToiDanh (Integer id){
-            return TINH_CHAT_MAP.getOrDefault(id, "Tội danh khác");
+        String tenDonVi = "Toàn quốc";
+
+        if(StringUtils.hasText(request.getMaXaCommune())){
+            tenDonVi = XA_NAME.getOrDefault(request.getMaXaCommune(), request.getMaXaCommune());
         }
 
-        private String getTenDanToc (Long id){
-            return (id == null || id == 0L) ? "Dân tộc khác" : DAN_TOC_MAP.getOrDefault(id, "Dân tộc khác");
-        }
+        response.setTenDonVi(tenDonVi);
 
-        private String getTenTonGiao (Long id){
-            return (id == null || id == 0L) ? "Không tôn giáo" : TON_GIAO_MAP.getOrDefault(id, "Tôn giáo khác");
-        }
-
-        private String getTenGioiTinh (Integer id){
-            if (id == null) return "Không xác định";
-            if (id == 1) return "Nam";
-            if (id == 2) return "Nữ";
-            return "Khác";
-        }
+        return response;
     }
+
+    private String getTenTinhChatToiDanh(Integer id) {
+        return TINH_CHAT_MAP.getOrDefault(id, "Tội danh khác");
+    }
+
+    private String getTenDanToc(Long id) {
+        return (id == null || id == 0L) ? "Dân tộc khác" : DAN_TOC_MAP.getOrDefault(id, "Dân tộc khác");
+    }
+
+    private String getTenTonGiao(Long id) {
+        return (id == null || id == 0L) ? "Không tôn giáo" : TON_GIAO_MAP.getOrDefault(id, "Tôn giáo khác");
+    }
+
+    private String getTenGioiTinh(Integer id) {
+        if (id == null) return "Không xác định";
+        if (id == 1) return "Nam";
+        if (id == 2) return "Nữ";
+        return "Khác";
+    }
+}

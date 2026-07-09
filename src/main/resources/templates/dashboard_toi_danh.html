@@ -65,10 +65,10 @@
                     <label class="form-label fw-semibold text-secondary">Địa bàn (Xã/Phường)</label>
                     <select class="form-select" th:field="*{maXaCommune}">
                         <option value="">-- Tất cả địa bàn --</option>
-                        <option value="XA01">Xã Hòa Bình (XA01)</option>
-                        <option value="XA02">Phường Đà Nẵng (XA02)</option>
-                        <option value="XA03">Xã Tam Đa (XA03)</option>
-                        <option value="XA04">Xã An Đồng (XA04)</option>
+                        <option value="XA01">Xã Hòa Bình</option>
+                        <option value="XA02">Phường Đà Nẵng</option>
+                        <option value="XA03">Xã Tam Đa</option>
+                        <option value="XA04">Xã An Đồng</option>
                     </select>
                 </div>
 
@@ -87,6 +87,10 @@
                         <option value="">-- Tất cả dân tộc --</option>
                         <option value="1">Kinh</option>
                         <option value="2">Mường</option>
+                        <option value="3">Tày</option>
+                        <option value="4">Khơ me</option>
+                        <option value="5">Thái</option>
+                        <option value="6">Nùng</option>
                     </select>
                 </div>
 
@@ -96,6 +100,9 @@
                         <option value="">-- Tất cả tôn giáo --</option>
                         <option value="1">Phật giáo</option>
                         <option value="2">Công giáo</option>
+                        <option value="3">Cao Đài</option>
+                        <option value="4">Hòa Hảo</option>
+                        <option value="5">Không tôn giáo</option>
                     </select>
                 </div>
 
@@ -150,7 +157,7 @@
                         <div class="chart-title">A. PHÂN BỔ ĐỊA BÀN CHI TIẾT THEO GIỚI TÍNH</div>
                         <div class="small text-muted mb-2">
                             Đơn vị: <span class="fw-bold text-danger"
-                                          th:text="${filters.maXaCommune != null and filters.maXaCommune != '' ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                                          th:text="${dashboardData.tenDonVi}"></span>
                             • Đang xem: <span class="fw-bold text-primary"
                                               th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
@@ -163,7 +170,7 @@
                         <div class="chart-title">B. PHÂN BỔ THEO THÀNH PHẦN DÂN TỘC</div>
                         <div class="small text-muted mb-2" th:if="${dashboardData.chartBDanToc != null}">
                             Đơn vị: <span class="fw-bold text-danger"
-                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                                          th:text="${dashboardData.tenDonVi}"></span>
                             • Đang xem: <span class="fw-bold text-success"
                                               th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
@@ -182,7 +189,7 @@
                         <div class="chart-title">C. PHÂN BỔ CHI TIẾT THEO TÔN GIÁO</div>
                         <div class="small text-muted mb-2" th:if="${dashboardData.chartCTonGiao != null}">
                             Đơn vị: <span class="fw-bold text-danger"
-                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                                          th:text="${dashboardData.tenDonVi}"></span>
                             • Đang xem: <span class="fw-bold text-info"
                                               th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
@@ -199,7 +206,7 @@
                         <div class="chart-title">D. CƠ CẤU THEO CÁC PHÂN KHÚC ĐỘ TUỔI</div>
                         <div class="small text-muted mb-2" th:if="${dashboardData.chartDDoTuoi != null}">
                             Đơn vị: <span class="fw-bold text-danger"
-                                          th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
+                                          th:text="${dashboardData.tenDonVi}"></span>
                             • Đang xem: <span class="fw-bold text-warning"
                                               th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
