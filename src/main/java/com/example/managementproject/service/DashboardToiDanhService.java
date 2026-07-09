@@ -65,7 +65,7 @@ public class DashboardToiDanhService {
                         c.DAN_TOC_ID                                                                    AS ID_DAN_TOC,
                         c.TON_GIAO_ID                                                                   AS ID_TON_GIAO,
                         COUNT(DISTINCT c.CU_TRU_ID)                                                     AS TONG_SO_DT,
-
+                
                         COUNT(DISTINCT CASE WHEN CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 16 YEAR), '%Y%m%d') AS UNSIGNED) THEN c.CU_TRU_ID END) AS duoi16,
                         COUNT(DISTINCT CASE WHEN CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 16 YEAR), '%Y%m%d') AS UNSIGNED) AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 18 YEAR), '%Y%m%d') AS UNSIGNED) THEN c.CU_TRU_ID END) AS tuoi1618,
                         COUNT(DISTINCT CASE WHEN CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 18 YEAR), '%Y%m%d') AS UNSIGNED) AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 YEAR), '%Y%m%d') AS UNSIGNED) THEN c.CU_TRU_ID END) AS tuoi1830,
@@ -172,12 +172,12 @@ public class DashboardToiDanhService {
         }
 
         if (request.getDoTuoi() == null || request.getDoTuoi().isEmpty()) {
-            long duoi16   = filteredMatrix.stream().mapToLong(m -> m.getDuoi16() == null ? 0L : m.getDuoi16()).sum();
+            long duoi16 = filteredMatrix.stream().mapToLong(m -> m.getDuoi16() == null ? 0L : m.getDuoi16()).sum();
             long tuoi1618 = filteredMatrix.stream().mapToLong(m -> m.getTuoi1618() == null ? 0L : m.getTuoi1618()).sum();
             long tuoi1830 = filteredMatrix.stream().mapToLong(m -> m.getTuoi1830() == null ? 0L : m.getTuoi1830()).sum();
             long tuoi3045 = filteredMatrix.stream().mapToLong(m -> m.getTuoi3045() == null ? 0L : m.getTuoi3045()).sum();
             long tuoi4560 = filteredMatrix.stream().mapToLong(m -> m.getTuoi4560() == null ? 0L : m.getTuoi4560()).sum();
-            long tren60   = filteredMatrix.stream().mapToLong(m -> m.getTren60() == null ? 0L : m.getTren60()).sum();
+            long tren60 = filteredMatrix.stream().mapToLong(m -> m.getTren60() == null ? 0L : m.getTren60()).sum();
 
             List<DashboardToiDanhResponse.ChartDataDTO> chartD = new ArrayList<>();
             chartD.add(new DashboardToiDanhResponse.ChartDataDTO("Dưới 16", null, duoi16));
@@ -190,25 +190,37 @@ public class DashboardToiDanhService {
             response.setChartDDoTuoi(chartD);
         }
 
-        return response;
-    }
+        if (request.getTinhChatToiDanhSelected() == null) {
+            response.setTenToiDanhDangChon("Tất cả tội danh");
+        } else{
+                String ten = response.getChart1ToiDanh()
+                        .stream()
+                        .filter(x -> Integer.parseInt(x.getSubLabel()) == request.getTinhChatToiDanhSelected())
+                        .map(DashboardToiDanhResponse.ChartDataDTO::getLabel)
+                        .findFirst()
+                        .orElse("Không xác định");
 
-    private String getTenTinhChatToiDanh(Integer id) {
-        return TINH_CHAT_MAP.getOrDefault(id, "Tội danh khác");
-    }
+                response.setTenToiDanhDangChon(ten);
+            }
+            return response;
+        }
 
-    private String getTenDanToc(Long id) {
-        return (id == null || id == 0L) ? "Dân tộc khác" : DAN_TOC_MAP.getOrDefault(id, "Dân tộc khác");
-    }
+        private String getTenTinhChatToiDanh (Integer id){
+            return TINH_CHAT_MAP.getOrDefault(id, "Tội danh khác");
+        }
 
-    private String getTenTonGiao(Long id) {
-        return (id == null || id == 0L) ? "Không tôn giáo" : TON_GIAO_MAP.getOrDefault(id, "Tôn giáo khác");
-    }
+        private String getTenDanToc (Long id){
+            return (id == null || id == 0L) ? "Dân tộc khác" : DAN_TOC_MAP.getOrDefault(id, "Dân tộc khác");
+        }
 
-    private String getTenGioiTinh(Integer id) {
-        if (id == null) return "Không xác định";
-        if (id == 1) return "Nam";
-        if (id == 2) return "Nữ";
-        return "Khác";
+        private String getTenTonGiao (Long id){
+            return (id == null || id == 0L) ? "Không tôn giáo" : TON_GIAO_MAP.getOrDefault(id, "Tôn giáo khác");
+        }
+
+        private String getTenGioiTinh (Integer id){
+            if (id == null) return "Không xác định";
+            if (id == 1) return "Nam";
+            if (id == 2) return "Nữ";
+            return "Khác";
+        }
     }
-}

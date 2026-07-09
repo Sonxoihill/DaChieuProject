@@ -152,7 +152,7 @@
                             Đơn vị: <span class="fw-bold text-danger"
                                           th:text="${filters.maXaCommune != null and filters.maXaCommune != '' ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
                             • Đang xem: <span class="fw-bold text-primary"
-                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                                              th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
                         <div id="chartDiaBanGioiTinh" class="chart-container"></div>
                     </div>
@@ -165,7 +165,7 @@
                             Đơn vị: <span class="fw-bold text-danger"
                                           th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
                             • Đang xem: <span class="fw-bold text-success"
-                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                                              th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
                         <div th:if="${dashboardData.chartBDanToc != null}" id="chartDanToc"
                              class="chart-container"></div>
@@ -184,7 +184,7 @@
                             Đơn vị: <span class="fw-bold text-danger"
                                           th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
                             • Đang xem: <span class="fw-bold text-info"
-                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                                              th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
                         <div th:if="${dashboardData.chartCTonGiao != null}" id="chartTonGiao"
                              class="chart-container"></div>
@@ -201,7 +201,7 @@
                             Đơn vị: <span class="fw-bold text-danger"
                                           th:text="${!#strings.isEmpty(filters.maXaCommune) ? filters.maXaCommune : 'Toàn quốc'}">Toàn quốc</span>
                             • Đang xem: <span class="fw-bold text-warning"
-                                              th:text="${filters.tinhChatToiDanhSelected == 1 ? 'Xâm hại tình dục' : (filters.tinhChatToiDanhSelected == 2 ? 'Trộm cắp tài sản' : 'Tất cả tội danh')}">Tất cả</span>
+                                              th:text="${dashboardData.tenToiDanhDangChon}"></span>
                         </div>
                         <div th:if="${dashboardData.chartDDoTuoi != null}" id="chartDoTuoi"
                              class="chart-container"></div>

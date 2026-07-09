@@ -13,6 +13,7 @@ public class DashboardToiDanhResponse {
     private List<ChartDataDTO> chartBDanToc;
     private List<ChartDataDTO> chartCTonGiao;
     private List<ChartDataDTO> chartDDoTuoi;
+    private String tenToiDanhDangChon;
 
     @Data
     @AllArgsConstructor
