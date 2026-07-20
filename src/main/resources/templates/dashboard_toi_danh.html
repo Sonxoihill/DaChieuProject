@@ -115,6 +115,10 @@
             <div class="system-subtitle">CƠ SỞ DỮ LIỆU QUỐC GIA VỀ DÂN CƯ</div>
         </div>
     </div>
+    <div class="d-flex align-items-center">
+        <span class="me-2 text-white fw-semibold" style="font-size: 0.85rem;">ĐỖ SƠN</span>
+        <div class="user-avatar">ok</div>
+    </div>
 </div>
 
 <div class="nav-tabs-container">
@@ -396,7 +400,7 @@
             series: [{
                 data: values,
                 type: 'bar',
-                itemStyle: {color: '#91cc75'}
+                itemStyle: {color: '#797977'}
             }]
         });
     }
@@ -408,7 +412,7 @@
         const values = dataFromBackend.chartCTonGiao.map(item => item.value);
 
         myChartC.setOption({
-            tooltip: {trigger: 'item', axisPointer: {type: 'shadow'}},
+            tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
             grid: {left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true},
             xAxis: {type: 'category', data: labels, axisLabel: {interval: 0, rotate: 20}},
             yAxis: {type: 'value'},
@@ -416,7 +420,7 @@
             series: [{
                 data: values,
                 type: 'bar',
-                itemStyle: {color: '#73c0de'}
+                itemStyle: {color: '#7d84de'}
             }]
         });
     }
@@ -435,7 +439,7 @@
             series: [{
                 data: values,
                 type: 'bar',
-                itemStyle: {color: '#fac858'}
+                itemStyle: {color: '#a8c80e'}
             }]
         });
     }

@@ -14,10 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.managementproject.constant.AppConstants.*;
@@ -44,7 +41,7 @@ public class WhBanAnHinhPhatService {
                .map(WhBanAnHinhPhatRequest::getId)
                .collect(Collectors.toList());
 
-       List<Long> existingIds = whBanAnHinhPhatRepository.findExistingIds(requestIds);
+       Set<Long> existingIds = whBanAnHinhPhatRepository.findExistingIds(requestIds);
        List<WhBanAnHinhPhatRequest> inserts = bulkRequest.getData().stream()
                .filter(dto -> !existingIds.contains(dto.getId()))
                .collect(Collectors.toList());

@@ -106,6 +106,32 @@ public class DashboardToiDanhService {
             sqlBuilder.append(" AND c.TON_GIAO_ID = :tonGiaoId ");
             params.addValue("tonGiaoId", request.getTonGiaoId());
         }
+        if (request.getDoTuoi() != null && !request.getDoTuoi().isEmpty()) {
+            switch (request.getDoTuoi()) {
+                case "duoi16":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 16 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+                case "tuoi1618":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 16 YEAR), '%Y%m%d') AS UNSIGNED) ")
+                            .append(" AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 18 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+                case "tuoi1830":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 18 YEAR), '%Y%m%d') AS UNSIGNED) ")
+                            .append(" AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+                case "tuoi3045":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 YEAR), '%Y%m%d') AS UNSIGNED) ")
+                            .append(" AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 45 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+                case "tuoi4560":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 45 YEAR), '%Y%m%d') AS UNSIGNED) ")
+                            .append(" AND CAST(c.NGAY_SINH AS UNSIGNED) > CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 60 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+                case "tren60":
+                    sqlBuilder.append(" AND CAST(c.NGAY_SINH AS UNSIGNED) <= CAST(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 60 YEAR), '%Y%m%d') AS UNSIGNED) ");
+                    break;
+            }
+        }
 
         sqlBuilder.append(" GROUP BY b.DIA_BAN_QUAN_LY_CODE, d.TINH_CHAT, c.GIOI_TINH, c.DAN_TOC_ID, c.TON_GIAO_ID ");
 
